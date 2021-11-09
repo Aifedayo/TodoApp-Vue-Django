@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable vue/no-use-v-if-with-v-for,vue/no-confusing-v-for-v-if -->
   <div class="home">
     <legend>
       <h1 class="title">Vuengo</h1>
@@ -6,13 +7,13 @@
 
     <div class="columns">
       <div class="column is-3 is-offset-3">
-        <form>
+        <form v-on:submit.prevent="addTask">
           <h2 class="subtitle">Add task</h2>
 
           <div class="field">
             <label class="label">Description</label>
             <div class="control">
-              <input class="input" type="text">
+              <input class="input" type="text" v-model="description">
             </div>
           </div>
 
@@ -20,7 +21,7 @@
             <label class="label">Status</label>
             <div class="control">
               <div class="select">
-                <select>
+                <select v-model="status">
                   <option value="todo">To Do</option>
                   <option value="done">Done</option>
                 </select>
@@ -42,23 +43,35 @@
         <h2 class="subtitle">To do</h2>
 
         <div class="todo">
-          <div class="card">
-            <div class="card-content">Task description</div>
-
-            <footer class="card-footer">
-              <a class="card-footer-item">Done</a>
-            </footer>
+          <div class="card" 
+            v-for="task in tasks" 
+            v-bind:key="task.id"
+          >
+            <div v-if="task.status === 'todo'" class="card">
+              <div class="card-content">{{ task.description }}</div>
+              <footer class="card-footer">
+                <a class="card-footer-item" @click="setStatus(task.id, 'done')">Done</a>
+              </footer>
+            </div>
           </div>
         </div>
       
         <div class="columns is-6">
           <h2 class="subtitle">Done</h2>
 
-          <div class="todo">
-          <div class="card">
-            <div class="card-content">Task description</div>
+          <div>
+            <div class="card" 
+              v-for="task in tasks" 
+              v-bind:key="task.id"
+            >
+              <div v-if="task.status === 'done'" class="done">
+                <div class="card-content">{{ task.description }}</div>
 
-          </div>
+                <footer class="card-footer">
+                  <a class="card-footer-item" @click="setStatus(task.id, 'todo')">To do</a>
+                </footer>
+              </div>
+            </div>
         </div>
       </div>
       </div>
@@ -74,24 +87,78 @@ export default {
   name: "Home",
   data() {
     return {
-      tasks: []
+      tasks: [],
+      description: '',
+      status: 'todo',
     }
   },
 
   mounted() {
-    this.getTask()
+    this.getTasks()
   },
 
   methods: {
-    getTask() {
+    getTasks() {
       axios({
         method: 'get',
-        url: 'http://127.0.0.1:8000/tasks/',
+        url: 'http://127.0.0.1:8001/tasks/',
         auth: {
           username: 'admin',
           password: 'testing'
         }
-      }).then(respond => this.tasks = response.data)
+      }).then(response => this.tasks = response.data)
+    },
+    addTask() {
+      if (this.description) {
+        axios({
+          method: 'post',
+          url: 'http://127.0.0.1:8001/tasks/',
+          data: {
+            description: this.description,
+            status: this.status
+          },
+          auth: {
+            username: 'admin',
+            password: 'testing'
+          }
+        }).then((response) => {
+          let newTask = {
+            'id': response.data.id,
+            'description': this.description,
+            'status': this.status
+          }
+
+          this.tasks.push(newTask)
+
+          this.description = ''
+          this.status = 'todo'
+        }).catch((error) => {
+          console.log(error)
+        })
+      }
+    },
+
+    setStatus(task_id, status) {
+
+      const task = this.tasks.filter(task => task.id === task_id)[0]
+      const description = task.description
+      axios({
+        method: 'put',
+        url: 'http://127.0.0.1:8001/tasks/' + task_id + '/',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          description: description,
+          status: status
+        },
+        auth: {
+          username: 'admin',
+          password: 'testing'
+        }
+      }).then(() => {
+        task.status = status
+      })
     }
   }
 };
