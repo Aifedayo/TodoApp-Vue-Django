@@ -38,8 +38,8 @@
       </div>
     </div>
 
-    <div class="columns">
-      <div class="columns is-6">
+    <div class="columns is-offset-3">
+      <div class="column is-5">
         <h2 class="subtitle">To do</h2>
 
         <div class="todo">
@@ -55,25 +55,24 @@
             </div>
           </div>
         </div>
-      
-        <div class="columns is-6">
-          <h2 class="subtitle">Done</h2>
-
-          <div>
-            <div class="card" 
-              v-for="task in tasks" 
-              v-bind:key="task.id"
-            >
-              <div v-if="task.status === 'done'" class="done">
-                <div class="card-content">{{ task.description }}</div>
-
-                <footer class="card-footer">
-                  <a class="card-footer-item" @click="setStatus(task.id, 'todo')">To do</a>
-                </footer>
-              </div>
-            </div>
-        </div>
       </div>
+      <div class="column is-5">
+        <h2 class="subtitle">Done</h2>
+
+        <div>
+          <div class="card" 
+            v-for="task in tasks" 
+            v-bind:key="task.id"
+          >
+            <div v-if="task.status === 'done'" class="done">
+              <div class="card-content">{{ task.description }}</div>
+
+              <footer class="card-footer">
+                <a class="card-footer-item" @click="setStatus(task.id, 'todo')">To do</a>
+              </footer>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
