@@ -11,6 +11,13 @@
           <h2 class="subtitle">Add task</h2>
 
           <div class="field">
+            <label class="label">Title</label>
+            <div class="control">
+              <input class="input" type="text" v-model="title">
+            </div>
+          </div>
+
+          <div class="field">
             <label class="label">Description</label>
             <div class="control">
               <input class="input" type="text" v-model="description">
@@ -38,7 +45,7 @@
       </div>
     </div>
 
-    <div class="columns is-offset-3">
+    <div class="columns">
       <div class="column is-5">
         <h2 class="subtitle">To do</h2>
 
@@ -48,6 +55,7 @@
             v-bind:key="task.id"
           >
             <div v-if="task.status === 'todo'" class="card">
+              <div class="card-content">{{ task.title }}</div>
               <div class="card-content">{{ task.description }}</div>
               <footer class="card-footer">
                 <a class="card-footer-item" @click="setStatus(task.id, 'done')">Done</a>
@@ -65,6 +73,7 @@
             v-bind:key="task.id"
           >
             <div v-if="task.status === 'done'" class="done">
+              <div class="card-content">{{ task.title }}</div>
               <div class="card-content">{{ task.description }}</div>
 
               <footer class="card-footer">
@@ -87,6 +96,7 @@ export default {
   data() {
     return {
       tasks: [],
+      title: '',
       description: '',
       status: 'todo',
     }
@@ -113,6 +123,7 @@ export default {
           method: 'post',
           url: 'http://127.0.0.1:8001/tasks/',
           data: {
+            title: this.title,
             description: this.description,
             status: this.status
           },
@@ -123,12 +134,13 @@ export default {
         }).then((response) => {
           let newTask = {
             'id': response.data.id,
+            'title': this.title,
             'description': this.description,
             'status': this.status
           }
 
           this.tasks.push(newTask)
-
+          this.title = ''
           this.description = ''
           this.status = 'todo'
         }).catch((error) => {
@@ -140,6 +152,7 @@ export default {
     setStatus(task_id, status) {
 
       const task = this.tasks.filter(task => task.id === task_id)[0]
+      const title = title
       const description = task.description
       axios({
         method: 'put',
@@ -148,6 +161,7 @@ export default {
           'Content-Type': 'application/json',
         },
         data: {
+          title: title,
           description: description,
           status: status
         },
