@@ -3,7 +3,7 @@ from datetime import datetime
 from .models import Task
 
 class TaskModelTestCase(TestCase):
-
+    """ Create a testcase for Task Model """
     def setUp(self):
         self.task = Task.objects.create(
             title='Test Task',
